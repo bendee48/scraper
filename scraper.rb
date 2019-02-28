@@ -8,7 +8,7 @@ require 'csv'
 class Scraper
 
   def initialize
-    @browser = browser = Watir::Browser.new(:chrome)#, {:chromeOptions => {:args => ['--headless']}})
+    @browser = browser = Watir::Browser.new(:chrome)#, {:chromeOptions => {:args => ['--headless', '--log-level=2']}})
     @url = url = "https://www.unquote.com/category/deals/page/"
     @page_num = 1
     @date_to = "january"
@@ -28,10 +28,15 @@ class Scraper
 
     while @page_date != @date_to do
       current_url = @browser.goto(@url + @page_num.to_s)
+      sleep 1
       @listing_links = @browser.div(id: "listings").wait_until(&:present?).h5s
       @page_date = @browser.times.first.wait_until(&:present?).text.strip.scan(/[A-Z]+/i).first.downcase
       @page_num += 1
       page_scrape
+      #pause scrape
+      if @page_num % 5 == 0
+        sleep rand(25..45)
+      end
     end
   end
 
@@ -40,7 +45,9 @@ class Scraper
       lst.link.click
       #wait for key elements to load
       @browser.ul(class: "meta-taxonomy-list").wait_until(&:present?)
+      sleep 1
       @browser.h1.wait_until(&:present?)
+      sleep 1
       @browser.p(class: "article-summary")
       sleep 1
       parsed_page = Nokogiri::HTML.parse(@browser.html)
@@ -65,7 +72,6 @@ class Scraper
   def save_to_csv
     puts "Scrape completed. #{@data_array.count} listings found."
     sleep 2
-    #save to csv
     puts "Saving to csv..."
     csv_headers = ["Date", "Deal Type", "Title", "Content"]
     date = Time.now.strftime("%d%m%y")
