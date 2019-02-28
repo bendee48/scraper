@@ -36,7 +36,7 @@ class Scraper
       #pause scrape
       if @page_num % 5 == 0
         puts "Pausing..."
-        sleep rand(20..45)
+        sleep rand(20..35)
       end
     end
   end
