@@ -8,7 +8,7 @@ require 'csv'
 class Scraper
 
   def initialize
-    @browser = browser = Watir::Browser.new(:chrome)#, {:chromeOptions => {:args => ['--headless', '--log-level=2']}})
+    @browser = browser = Watir::Browser.new(:chrome, {:chromeOptions => {:args => ['--headless', '--log-level=2']}})
     @url = url = "https://www.unquote.com/category/deals/page/"
     @page_num = 1
     @date_to = "january"
@@ -35,7 +35,8 @@ class Scraper
       page_scrape
       #pause scrape
       if @page_num % 5 == 0
-        sleep rand(25..45)
+        puts "Pausing..."
+        sleep rand(20..45)
       end
     end
   end
@@ -47,7 +48,6 @@ class Scraper
       @browser.ul(class: "meta-taxonomy-list").wait_until(&:present?)
       sleep 1
       @browser.h1.wait_until(&:present?)
-      sleep 1
       @browser.p(class: "article-summary")
       sleep 1
       parsed_page = Nokogiri::HTML.parse(@browser.html)
